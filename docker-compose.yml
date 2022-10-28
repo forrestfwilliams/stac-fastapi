@@ -114,6 +114,25 @@ services:
       - database
       - app-pgstac
 
+  # Load our own dataset into the PGStac Application
+  loadjoplin-pgstac:
+    image: stac-utils/stac-fastapi
+    environment:
+      - ENVIRONMENT=development
+    volumes:
+      - ./stac_fastapi:/app/stac_fastapi
+      - ./scripts:/app/scripts
+    command:
+      - "./scripts/wait-for-it.sh"
+      - "app-pgstac:8082"
+      - "--"
+      - "python"
+      - "/app/scripts/ingest_catalog.py"
+      - "http://app-pgstac:8082"
+    depends_on:
+      - database
+      - app-pgstac
+
 networks:
   default:
     name: stac-fastapi-network
